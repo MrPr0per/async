@@ -6,38 +6,41 @@ const API = {
 };
 
 async function run() {
-    const orgOgrns = await sendRequest(API.organizationList);
-    const ogrns = orgOgrns.join(",");  // тут нельзя параллелить
+    try {
+        const orgOgrns = await sendRequest(API.organizationList);
+        const ogrns = orgOgrns.join(",");  // тут нельзя параллелить
 
-    const requisites = await sendRequest(`${API.orgReqs}?ogrn=${ogrns}`)
-    const orgsMap = reqsToMap(requisites);   // тут нельзя параллелить
+        const requisites = await sendRequest(`${API.orgReqs}?ogrn=${ogrns}`)
+        const orgsMap = reqsToMap(requisites);   // тут нельзя параллелить
 
-    await Promise.all([
-        sendRequest(`${API.analytics}?ogrn=${ogrns}`)
-            .then((analytics) => addInOrgsMap(orgsMap, analytics, "analytics")),
-        sendRequest(`${API.buhForms}?ogrn=${ogrns}`)
-            .then((buh) => addInOrgsMap(orgsMap, buh, "buhForms"))
-    ])
+        await Promise.all([
+            sendRequest(`${API.analytics}?ogrn=${ogrns}`)
+                .then((analytics) => addInOrgsMap(orgsMap, analytics, "analytics")),
+            sendRequest(`${API.buhForms}?ogrn=${ogrns}`)
+                .then((buh) => addInOrgsMap(orgsMap, buh, "buhForms"))
+        ])
 
-    render(orgsMap, orgOgrns);
+        render(orgsMap, orgOgrns);
+    } catch (e) {
+        alert(e)
+    }
+
+    console.log('Код не упал!')
 }
 
 function sendRequest(url) {
     return fetch(url)
         .then(response => {
             if (!response.ok) {
-                alert(`HTTP Error: ${response.status} ${response.statusText}`);
-                return new Promise(() => {
-                });
+                throw new Error(`HTTP Error: ${response.status} ${response.statusText}`);
             }
             return response.json();
         })
         .catch(error => {
             if (error instanceof TypeError) {
-                alert(`Error: ${error.message}`);
+                throw new Error('Network request failed');
             }
-            return new Promise(() => {
-            });
+            throw error;
         });
 }
 
@@ -136,4 +139,4 @@ function createAddress(address) {
     }
 }
 
-await run();
+run();
