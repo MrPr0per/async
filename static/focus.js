@@ -24,8 +24,6 @@ async function run() {
     } catch (e) {
         alert(e)
     }
-
-    console.log('Код не упал!')
 }
 
 function sendRequest(url) {
