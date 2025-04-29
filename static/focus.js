@@ -7,13 +7,18 @@ const API = {
 
 async function run() {
     const orgOgrns = await sendRequest(API.organizationList);
-    const ogrns = orgOgrns.join(",");
+    const ogrns = orgOgrns.join(",");  // тут нельзя параллелить
+
     const requisites = await sendRequest(`${API.orgReqs}?ogrn=${ogrns}`)
-    const orgsMap = reqsToMap(requisites);
-    const analytics = await sendRequest(`${API.analytics}?ogrn=${ogrns}`)
-    addInOrgsMap(orgsMap, analytics, "analytics");
-    const buh = await sendRequest(`${API.buhForms}?ogrn=${ogrns}`)
-    addInOrgsMap(orgsMap, buh, "buhForms");
+    const orgsMap = reqsToMap(requisites);   // тут нельзя параллелить
+
+    await Promise.all([
+        sendRequest(`${API.analytics}?ogrn=${ogrns}`)
+            .then((analytics) => addInOrgsMap(orgsMap, analytics, "analytics")),
+        sendRequest(`${API.buhForms}?ogrn=${ogrns}`)
+            .then((buh) => addInOrgsMap(orgsMap, buh, "buhForms"))
+    ])
+
     render(orgsMap, orgOgrns);
 }
 
@@ -22,7 +27,8 @@ function sendRequest(url) {
         .then(response => {
             if (!response.ok) {
                 alert(`HTTP Error: ${response.status} ${response.statusText}`);
-                return new Promise(() => {});
+                return new Promise(() => {
+                });
             }
             return response.json();
         })
@@ -30,7 +36,8 @@ function sendRequest(url) {
             if (error instanceof TypeError) {
                 alert(`Error: ${error.message}`);
             }
-            return new Promise(() => {});
+            return new Promise(() => {
+            });
         });
 }
 
