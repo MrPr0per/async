@@ -17,8 +17,6 @@ async function run() {
     render(orgsMap, orgOgrns);
 }
 
-run();
-
 function sendRequest(url) {
     return new Promise((resolve) => {
         const xhr = new XMLHttpRequest();
@@ -130,3 +128,5 @@ function createAddress(address) {
         return `${address[key].topoShortName}. ${address[key].topoValue}`;
     }
 }
+
+await run();
