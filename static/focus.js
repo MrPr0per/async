@@ -20,13 +20,16 @@ async function run() {
 function sendRequest(url) {
     return fetch(url)
         .then(response => {
-            if (response.status === 200) {
-                return response.json();
-            } else {
+            if (!response.ok) {
+                alert(`HTTP Error: ${response.status} ${response.statusText}`);
                 return new Promise(() => {});
             }
+            return response.json();
         })
-        .catch(() => {
+        .catch(error => {
+            if (error instanceof TypeError) {
+                alert(`Error: ${error.message}`);
+            }
             return new Promise(() => {});
         });
 }
